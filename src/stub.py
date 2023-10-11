@@ -100,6 +100,7 @@ class Stub:
         return f'# ifndef {self._name.upper()}_STUB_H\n' \
                f'# define {self._name.upper()}_STUB_H\n' \
                f'\n' \
+               f'# include <stdbool.h>\n' \
                f'# include <stdint.h>\n' \
                f'\n' \
                f'{self._generate_system_function_prototypes()}' \

@@ -42,6 +42,7 @@ def test_basic_stub_header_can_be_generated_from_string() -> None:
     # ifndef TEST_STUB_H
     # define TEST_STUB_H
     
+    # include <stdbool.h>
     # include <stdint.h>
     
     void test_function(void);

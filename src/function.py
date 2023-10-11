@@ -1,0 +1,218 @@
+from typing import List
+
+from variable import Variable
+
+
+def _formatted_body_line(line: str) -> str:
+    return f'   {line};\n'
+
+
+class WriterC:
+
+    def signature(self, static: bool, identifier: str, result_var: Variable, parameters: List[Variable]) -> None:
+        result: str = ''
+        if static:
+            result += 'static '
+        result += f'{result_var.type.as_c_code()} {identifier}'
+        result += f'({self._parameter_list_as_c(parameters)})'
+        print(result)
+
+    @staticmethod
+    def _parameter_list_as_c(parameters: List[Variable]) -> str:
+        if not parameters:
+            return Variable.Type.VOID.as_c_code()
+        else:
+            result: str = ''
+            for param in parameters:
+                result += param.as_parameter_in_signature() + ', '
+            result = result[:-2]
+            return result
+
+    @staticmethod
+    def open_block():
+        print('{\n')
+
+    @staticmethod
+    def close_block():
+        print('}\n\n')
+
+
+class Function:
+
+    def __init__(self, identifier: str, return_type: Variable.Type, arguments=None, is_private=False) -> None:
+        if arguments is None:
+            arguments = []
+        self._identifier = identifier
+        self._result_var = Variable(return_type, '_result', scope=Variable.Scope.RETURN)
+        self._input_variables: List[Variable] = arguments
+        self.is_private = is_private
+
+    def as_c_code(self) -> str:
+        result: str = f'{self._signature_as_c()}\n' \
+                      f'{{\n' \
+                      f'{self._body_as_c()}' \
+                      f'}}\n\n'
+        # self.as_c_code_()
+        return result
+
+    def as_c_code_(self) -> None:
+        writer = WriterC()
+        writer.signature(self.is_private, self._identifier, self._result_var, self._input_variables)
+        # self._write_body(writer)
+        writer.open_block()
+        writer.close_block()
+
+    def as_c_prototype(self) -> str:
+        return f'{self._signature_as_c()};\n'
+
+    def _signature_as_c(self) -> str:
+        result: str = ''
+        if self.is_private:
+            result += 'static '
+        result += f'{self._result_var.type.as_c_code()} {self._identifier}'
+        result += f'({self._parameter_list_as_c()})'
+        return result
+
+    def _parameter_list_as_c(self) -> str:
+        if not self._input_variables:
+            return Variable.Type.VOID.as_c_code()
+        else:
+            result: str = ''
+            for param in self._input_variables:
+                result += param.as_parameter_in_signature() + ', '
+            result = result[:-2]
+            return result
+
+    def _body_as_c(self) -> str:
+        raise NotImplementedError
+
+
+class SyncFunction(Function):
+
+    def _body_as_c(self) -> str:
+        return self._define_local_vars() + \
+            self._enable_fpga() + \
+            self._run_accelerator() + \
+            self._block_until_ready() + \
+            self._retrieve_result() + \
+            self._stop_fpga() + \
+            self._return_result()
+
+    def _define_local_vars(self):
+        if self._is_returning_result():
+            return f'{self._result_var.as_definition()}\n'
+        else:
+            return ''
+
+    def _run_accelerator(self) -> str:
+        return self._send_data_to_fpga() + \
+               self._start_computation() + \
+               '\n'
+
+    @staticmethod
+    def _enable_fpga() -> str:
+        return _formatted_body_line('middleware_init()') + _formatted_body_line('middleware_userlogic_enable()')
+
+    def _send_data_to_fpga(self) -> str:
+        result = ''
+        target_address = 0
+        for parameter in self._input_variables:
+            identifier = parameter.as_pass_by_reference()
+            length = parameter.get_length_in_byte()
+            result += f'{self._pass_parameter(target_address, f"{identifier}", length)}'
+            target_address += length
+        return result
+
+    @staticmethod
+    def _start_computation() -> str:
+        return _formatted_body_line('model_compute(true)')
+
+    @staticmethod
+    def _pass_parameter(target_addr: int, name: str, length: int) -> str:
+        return _formatted_body_line(f'middleware_write_blocking('
+                                    f'ADDR_SKELETON_INPUTS+{target_addr}, (uint8_t*)({name}), {length})')
+
+    def _get_input_length(self) -> int:
+        input_length = 0
+        for param in self._input_variables:
+            input_length += param.get_length_in_byte()
+        return input_length
+
+    @staticmethod
+    def _block_until_ready() -> str:
+        return _formatted_body_line(f'while( middleware_userlogic_get_busy_status() )')+'\n'
+
+    def _is_returning_result(self) -> bool:
+        return self._result_var.type.get_length_in_byte() > 0
+
+    def _retrieve_result(self) -> str:
+        if self._is_returning_result():
+            res = self._result_var.identifier
+            length = self._result_var.type.get_length_in_byte()
+            return _formatted_body_line(f'middleware_read_blocking(1, (uint8_t *)(&{res}), {length})') + _formatted_body_line(f'middleware_read_blocking(1, (uint8_t *)(&{res}), {length})')
+        else:
+            return ''
+
+    def _return_result(self) -> str:
+        if self._is_returning_result():
+            return _formatted_body_line(f'return {self._result_var.identifier}')
+        else:
+            return ''
+
+    @staticmethod
+    def _stop_fpga() -> str:
+        return f'   model_compute(false);\n' \
+               f'   middleware_userlogic_disable();\n' \
+               f'   middleware_deinit();\n'
+
+
+class DeployFunction(Function):
+
+    def __init__(self, identifier: str, address_var: Variable, id_var: Variable) -> None:
+        super().__init__(identifier, Variable.Type.BOOL)
+        self.address_var_name: str = address_var.identifier
+        self.id_var = id_var
+
+    def _body_as_c(self) -> str:
+        return f'   middleware_init();\n' \
+               f'   middleware_configure_fpga({self.address_var_name});\n' \
+               f'   sleep_ms(200);\n' \
+               f'   bool is_deployed_successfully = (get_id() == accelerator_id);\n' \
+               f'   middleware_deinit();\n' \
+               f'   return is_deployed_successfully;\n'
+
+
+class ModelComputeFunction(Function):
+
+    def __init__(self) -> None:
+        arg = Variable(Variable.Type.BOOL, 'enable', scope=Variable.Scope.LOCAL)
+        super().__init__('model_compute', Variable.Type.VOID, [arg], is_private=True)
+
+    def _body_as_c(self) -> str:
+        return self._shorter_body_as_c()
+
+    @staticmethod
+    def _original_body_as_c() -> str:
+        return '   uint8_t cmd[1] = {0x01};\n' \
+               '   if (enable)\n' \
+               '      cmd[0] = 1;\n' \
+               '   else\n' \
+               '      cmd[0] = 0;\n' \
+               '   middleware_write_blocking(ADDR_COMPUTATION_ENABLE, cmd, 1);\n'
+
+    @staticmethod
+    def _shorter_body_as_c() -> str:
+        return '   uint8_t cmd = (enable ? 1 : 0);\n' \
+               '   middleware_write_blocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);\n'
+
+
+class GetIdFunction(Function):
+
+    def __init__(self) -> None:
+        super().__init__('get_id', Variable.Type.UINT8, is_private=True)
+
+    def _body_as_c(self) -> str:
+        return '   middleware_userlogic_enable();\n' \
+               '   uint8_t id = middleware_userlogic_get_design_id();\n' \
+               '   middleware_userlogic_disable();\n' \
+               '   return id;\n'

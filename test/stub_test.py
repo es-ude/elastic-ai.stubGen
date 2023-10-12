@@ -1,4 +1,4 @@
-from stub import Stub
+from elasticai.stubgen.stub import Stub
 
 
 def test_stub_creation():

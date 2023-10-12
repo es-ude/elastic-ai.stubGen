@@ -62,7 +62,8 @@ class Stub:
         path = self._relative_path_to_middleware_header
         if len(path) > 0 and path[-1] != '/':
             path += '/'
-        return f'# define ADDR_SKELETON_INPUTS 0\n\n'
+        return f'# define ADDR_SKELETON_INPUTS 0\n' \
+               f'# define ADDR_COMPUTATION_ENABLE 100\n\n'
 
     def _generate_helper_function_prototypes(self) -> str:
         result = ''

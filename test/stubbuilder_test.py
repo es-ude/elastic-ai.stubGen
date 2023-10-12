@@ -13,11 +13,11 @@ def compare_without_whitespaces(s1: str, s2: str):
 
 
 def _strip_indention(text: str) -> str:
-    original_lines = text.strip('\n').split('\n')
+    original_lines = text.strip("\n").split("\n")
     stripped_lines = []
     for line in original_lines:
         stripped_lines.append(line.strip())
-    return "\n".join(stripped_lines).rstrip('\n')
+    return "\n".join(stripped_lines).rstrip("\n")
 
 
 def compare(actual: str, expected: str):
@@ -70,6 +70,7 @@ def test_basic_stub_code_can_be_generated_from_string() -> None:
     # include "test.h"
     
     # define ADDR_SKELETON_INPUTS 0
+    # define ADDR_COMPUTATION_ENABLE 100
     
     static void model_compute(bool enable);
     
@@ -118,6 +119,7 @@ def test_can_generate_deployable_stub_code() -> None:
     # include "another_test.h"
 
     # define ADDR_SKELETON_INPUTS 0
+    # define ADDR_COMPUTATION_ENABLE 100
 
     static void model_compute(bool enable);
     static uint8_t get_id(void);

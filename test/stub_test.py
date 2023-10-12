@@ -12,6 +12,7 @@ def test_stub_creation():
 # include "test.h"
 
 # define ADDR_SKELETON_INPUTS 0
+# define ADDR_COMPUTATION_ENABLE 100
 
 static void model_compute(bool enable);
 
@@ -22,5 +23,5 @@ static void model_compute(bool enable)
 }
 
 """
-    the_stub = Stub('test')
+    the_stub = Stub("test")
     assert the_stub.as_c_code() == expected

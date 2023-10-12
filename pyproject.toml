@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "elasticai.stubgen"
+version = "0.1.0"
+description = "generate c stub functions to use FPGA hw functions through our (es-ude) fpga middleware"
+authors = ["Gregor Schiele <gregor.schiele@uni-due.de>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "elasticai/stubgen", from="src"}]
+exclude = ["test/*.py"]
+maintainers = ["Lukas Einhaus <lukas.einhaus@uni-due.de>"]
+
+[tool.poetry.dependencies]
+python = ">=3.7"
+rply = "^0.7.8"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+  "simulation: possibly slow running integration tests including hw simulation"
+]
+testpaths = [
+    "test",
+]
+python_files = ["*_test.py"]
+

@@ -1,7 +1,7 @@
 import pytest
 
-from functionbuilder import FunctionBuilder
-from variable import Variable
+from elasticai.stubgen.functionbuilder import FunctionBuilder
+from elasticai.stubgen.variable import Variable
 
 
 def test_generating_signature_for_sync_works():

@@ -1,9 +1,9 @@
 import string
 
-from lexer import Lexer
-from parser import Parser
-from stub import Stub
-from stubbuilder import StubBuilder
+from elasticai.stubgen.lexer import Lexer
+from elasticai.stubgen.parser import Parser
+from elasticai.stubgen.stub import Stub
+from elasticai.stubgen.stubbuilder import StubBuilder
 
 
 def compare_without_whitespaces(s1: str, s2: str):

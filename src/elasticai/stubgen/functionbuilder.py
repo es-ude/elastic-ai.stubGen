@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import List
 
-from function import Function, SyncFunction
-from variable import Variable
+from elasticai.stubgen.function import Function, SyncFunction
+from elasticai.stubgen.variable import Variable
 
 
 class FunctionBuilder:

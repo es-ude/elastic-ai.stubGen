@@ -1,9 +1,9 @@
 from sys import argv
 
-from stub import Stub
-from stubbuilder import StubBuilder
-from lexer import Lexer
-from parser import Parser
+from elasticai.stubgen.stub import Stub
+from elasticai.stubgen.stubbuilder import StubBuilder
+from elasticai.stubgen.lexer import Lexer
+from elasticai.stubgen.parser import Parser
 
 
 #    sync predict_traffic_speed :

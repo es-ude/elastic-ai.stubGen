@@ -1,6 +1,6 @@
 from typing import List
-from function import Function, DeployFunction, ModelComputeFunction, GetIdFunction
-from variable import Variable
+from elasticai.stubgen.function import Function, DeployFunction, ModelComputeFunction, GetIdFunction
+from elasticai.stubgen.variable import Variable
 
 
 class Stub:

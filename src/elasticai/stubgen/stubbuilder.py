@@ -1,8 +1,8 @@
 from typing import List
 
-from functionbuilder import FunctionBuilder
-from variable import Variable
-from stub import Stub
+from elasticai.stubgen.functionbuilder import FunctionBuilder
+from elasticai.stubgen.variable import Variable
+from elasticai.stubgen.stub import Stub
 
 
 class StubBuilder:

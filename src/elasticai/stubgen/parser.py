@@ -1,5 +1,5 @@
 from rply import ParserGenerator
-from stubbuilder import StubBuilder
+from elasticai.stubgen.stubbuilder import StubBuilder
 
 
 class Parser:

@@ -1,6 +1,6 @@
 from typing import List
 
-from variable import Variable
+from elasticai.stubgen.variable import Variable
 
 
 def _formatted_body_line(line: str) -> str:

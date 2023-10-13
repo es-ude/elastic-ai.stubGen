@@ -213,6 +213,6 @@ class GetIdFunction(Function):
 
     def _body_as_c(self) -> str:
         return '   middleware_userlogic_enable();\n' \
-               '   uint8_t id = middleware_userlogic_get_design_id();\n' \
+               '   uint8_t id = middleware_get_design_id();\n' \
                '   middleware_userlogic_disable();\n' \
                '   return id;\n'

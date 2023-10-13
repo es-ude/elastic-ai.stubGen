@@ -179,7 +179,7 @@ def test_can_generate_deployable_stub_code() -> None:
     static uint8_t get_id(void)
     {
        middleware_userlogic_enable();
-       uint8_t id = middleware_userlogic_get_design_id();
+       uint8_t id = middleware_get_design_id();
        middleware_userlogic_disable();
        return id;
     }

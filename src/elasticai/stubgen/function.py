@@ -111,7 +111,7 @@ class SyncFunction(Function):
 
     @staticmethod
     def _enable_fpga() -> str:
-        return _formatted_body_line('middleware_init()') + _formatted_body_line('middleware_userlogic_enable()')
+        return _formatted_body_line('middlewareInit()') + _formatted_body_line('middlewareUserlogicEnable()')
 
     def _send_data_to_fpga(self) -> str:
         result = ''
@@ -129,7 +129,7 @@ class SyncFunction(Function):
 
     @staticmethod
     def _pass_parameter(target_addr: int, name: str, length: int) -> str:
-        return _formatted_body_line(f'middleware_write_blocking('
+        return _formatted_body_line(f'middlewareWriteBlocking('
                                     f'ADDR_SKELETON_INPUTS+{target_addr}, (uint8_t*)({name}), {length})')
 
     def _get_input_length(self) -> int:
@@ -140,7 +140,7 @@ class SyncFunction(Function):
 
     @staticmethod
     def _block_until_ready() -> str:
-        return _formatted_body_line(f'while( middleware_userlogic_get_busy_status() )')+'\n'
+        return _formatted_body_line(f'while( middlewareUserlogicGetBusyStatus() )')+'\n'
 
     def _is_returning_result(self) -> bool:
         return self._result_var.type.get_length_in_byte() > 0
@@ -149,7 +149,7 @@ class SyncFunction(Function):
         if self._is_returning_result():
             res = self._result_var.identifier
             length = self._result_var.type.get_length_in_byte()
-            return _formatted_body_line(f'middleware_read_blocking(1, (uint8_t *)(&{res}), {length})') + _formatted_body_line(f'middleware_read_blocking(1, (uint8_t *)(&{res}), {length})')
+            return _formatted_body_line(f'middlewareReadBlocking(1, (uint8_t *)(&{res}), {length})') + _formatted_body_line(f'middlewareReadBlocking(1, (uint8_t *)(&{res}), {length})')
         else:
             return ''
 
@@ -162,8 +162,8 @@ class SyncFunction(Function):
     @staticmethod
     def _stop_fpga() -> str:
         return f'   model_compute(false);\n' \
-               f'   middleware_userlogic_disable();\n' \
-               f'   middleware_deinit();\n'
+               f'   middlewareUserlogicDisable();\n' \
+               f'   middlewareDeinit();\n'
 
 
 class DeployFunction(Function):
@@ -174,11 +174,11 @@ class DeployFunction(Function):
         self.id_var = id_var
 
     def _body_as_c(self) -> str:
-        return f'   middleware_init();\n' \
-               f'   middleware_configure_fpga({self.address_var_name});\n' \
+        return f'   middlewareInit();\n' \
+               f'   middlewareConfigureFpga({self.address_var_name});\n' \
                f'   sleep_ms(200);\n' \
                f'   bool is_deployed_successfully = (get_id() == accelerator_id);\n' \
-               f'   middleware_deinit();\n' \
+               f'   middlewareDeinit();\n' \
                f'   return is_deployed_successfully;\n'
 
 
@@ -198,12 +198,12 @@ class ModelComputeFunction(Function):
                '      cmd[0] = 1;\n' \
                '   else\n' \
                '      cmd[0] = 0;\n' \
-               '   middleware_write_blocking(ADDR_COMPUTATION_ENABLE, cmd, 1);\n'
+               '   middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, cmd, 1);\n'
 
     @staticmethod
     def _shorter_body_as_c() -> str:
         return '   uint8_t cmd = (enable ? 1 : 0);\n' \
-               '   middleware_write_blocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);\n'
+               '   middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);\n'
 
 
 class GetIdFunction(Function):
@@ -212,7 +212,7 @@ class GetIdFunction(Function):
         super().__init__('get_id', Variable.Type.UINT8, is_private=True)
 
     def _body_as_c(self) -> str:
-        return '   middleware_userlogic_enable();\n' \
-               '   uint8_t id = middleware_get_design_id();\n' \
-               '   middleware_userlogic_disable();\n' \
+        return '   middlewareUserlogicEnable();\n' \
+               '   uint8_t id = middlewareGetDesignId();\n' \
+               '   middlewareUserlogicDisable();\n' \
                '   return id;\n'

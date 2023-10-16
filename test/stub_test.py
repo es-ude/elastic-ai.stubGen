@@ -6,17 +6,19 @@ def test_stub_creation():
  *  
  */
 
-# include <stdint.h>
-# include <stdbool.h>
-# include "middleware.h"
-# include "test.h"
+#include "middleware.h"
+#include "Sleep.h"
+#include "test.h"
 
-# define ADDR_SKELETON_INPUTS 0
-# define ADDR_COMPUTATION_ENABLE 100
+#include <stdint.h>
+#include <stdbool.h>
 
-static void model_compute(bool enable);
+#define ADDR_SKELETON_INPUTS 0
+#define ADDR_COMPUTATION_ENABLE 100
 
-static void model_compute(bool enable)
+static void modelCompute(bool enable);
+
+static void modelCompute(bool enable)
 {
    uint8_t cmd = (enable ? 1 : 0);
    middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);

@@ -54,7 +54,7 @@ class Stub:
         if len(path) > 0 and path[-1] != '/':
             path += '/'
         return f'#include "{path}middleware.h"\n' \
-               f'#include "Sleep.h"' \
+               f'#include "Sleep.h"\n' \
                f'#include "{self._name.lower()}.h"\n\n' \
                f'#include <stdint.h>\n' \
                f'#include <stdbool.h>\n\n' \

@@ -19,7 +19,7 @@ static void model_compute(bool enable);
 static void model_compute(bool enable)
 {
    uint8_t cmd = (enable ? 1 : 0);
-   middleware_write_blocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);
+   middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);
 }
 
 """

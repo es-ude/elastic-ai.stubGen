@@ -76,21 +76,21 @@ def test_basic_stub_code_can_be_generated_from_string() -> None:
     
     void test_function(void)
     {
-       middleware_init();
-       middleware_userlogic_enable();
+       middlewareInit();
+       middlewareUserlogicEnable();
        model_compute(true);
        
-       while( middleware_userlogic_get_busy_status() );
+       while( middlewareUserlogicGetBusyStatus() );
           
        model_compute(false);
-       middleware_userlogic_disable();
-       middleware_deinit();
+       middlewareUserlogicDisable();
+       middlewareDeinit();
     }
     
     static void model_compute(bool enable)
     {
        uint8_t cmd = (enable ? 1 : 0);
-       middleware_write_blocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);
+       middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);
     }
     """
     stub = build_stub_from_text(input_text)
@@ -129,58 +129,58 @@ def test_can_generate_deployable_stub_code() -> None:
 
     bool another_test_deploy(void)
     {
-       middleware_init();
-       middleware_configure_fpga(accelerator_addr);
+       middlewareInit();
+       middlewareConfigureFpga(accelerator_addr);
        sleep_ms(200);
        bool is_deployed_successfully = (get_id() == accelerator_id);
-       middleware_deinit();
+       middlewareDeinit();
        return is_deployed_successfully;
     }
 
     void another_test_doSomething(void)
     {
-       middleware_init();
-       middleware_userlogic_enable();
+       middlewareInit();
+       middlewareUserlogicEnable();
        model_compute(true);
     
-       while( middleware_userlogic_get_busy_status() );
+       while( middlewareUserlogicGetBusyStatus() );
     
        model_compute(false);
-       middleware_userlogic_disable();
-       middleware_deinit();
+       middlewareUserlogicDisable();
+       middlewareDeinit();
     }
     
     int8_t another_test_predict(int8_t *inputs, bool more_inputs)
     {
        int8_t _result;
     
-       middleware_init();
-       middleware_userlogic_enable();
-       middleware_write_blocking(ADDR_SKELETON_INPUTS+0, (uint8_t*)(inputs), 6);
-       middleware_write_blocking(ADDR_SKELETON_INPUTS+6, (uint8_t*)(&more_inputs), 1);
+       middlewareInit();
+       middlewareUserlogicEnable();
+       middlewareWriteBlocking(ADDR_SKELETON_INPUTS+0, (uint8_t*)(inputs), 6);
+       middlewareWriteBlocking(ADDR_SKELETON_INPUTS+6, (uint8_t*)(&more_inputs), 1);
        model_compute(true);
        
-       while( middleware_userlogic_get_busy_status() );
+       while( middlewareUserlogicGetBusyStatus() );
 
-       middleware_read_blocking(1, (uint8_t *)(&_result), 1);
-       middleware_read_blocking(1, (uint8_t *)(&_result), 1);
+       middlewareReadBlocking(1, (uint8_t *)(&_result), 1);
+       middlewareReadBlocking(1, (uint8_t *)(&_result), 1);
        model_compute(false);
-       middleware_userlogic_disable();
-       middleware_deinit();
+       middlewareUserlogicDisable();
+       middlewareDeinit();
        return _result;
     }
     
     static void model_compute(bool enable)
     {
        uint8_t cmd = (enable ? 1 : 0);
-       middleware_write_blocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);
+       middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);
     }
     
     static uint8_t get_id(void)
     {
-       middleware_userlogic_enable();
-       uint8_t id = middleware_get_design_id();
-       middleware_userlogic_disable();
+       middlewareUserlogicEnable();
+       uint8_t id = middlewareGetDesignId();
+       middlewareUserlogicDisable();
        return id;
     }
     """

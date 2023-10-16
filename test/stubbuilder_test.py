@@ -39,15 +39,15 @@ def test_basic_stub_header_can_be_generated_from_string() -> None:
     sync function () : void         
     """
     expected = """
-    # ifndef TEST_STUB_H
-    # define TEST_STUB_H
+    #ifndef TEST_STUB_H
+    #define TEST_STUB_H
     
-    # include <stdbool.h>
-    # include <stdint.h>
+    #include <stdbool.h>
+    #include <stdint.h>
     
     void test_function(void);
 
-    # endif
+    #endif
     """
     stub = build_stub_from_text(input_text)
     compare(stub.as_c_header(), expected)
@@ -64,30 +64,32 @@ def test_basic_stub_code_can_be_generated_from_string() -> None:
      * Do not change it manually. 
      */
      
-    # include <stdint.h>
-    # include <stdbool.h>
-    # include "middleware.h"
-    # include "test.h"
+    #include "middleware.h"
+    #include "Sleep.h"
+    #include "test.h"
+     
+    #include <stdint.h>
+    #include <stdbool.h>
     
-    # define ADDR_SKELETON_INPUTS 0
-    # define ADDR_COMPUTATION_ENABLE 100
+    #define ADDR_SKELETON_INPUTS 0
+    #define ADDR_COMPUTATION_ENABLE 100
     
-    static void model_compute(bool enable);
+    static void modelCompute(bool enable);
     
     void test_function(void)
     {
        middlewareInit();
        middlewareUserlogicEnable();
-       model_compute(true);
+       modelCompute(true);
        
        while( middlewareUserlogicGetBusyStatus() );
           
-       model_compute(false);
+       modelCompute(false);
        middlewareUserlogicDisable();
        middlewareDeinit();
     }
     
-    static void model_compute(bool enable)
+    static void modelCompute(bool enable)
     {
        uint8_t cmd = (enable ? 1 : 0);
        middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);
@@ -113,15 +115,17 @@ def test_can_generate_deployable_stub_code() -> None:
      * Do not change it manually. 
      */
 
-    # include <stdint.h>
-    # include <stdbool.h>
-    # include "../middleware/middleware.h"
-    # include "another_test.h"
+    #include "../middleware/middleware.h"
+    #include "Sleep.h"
+    #include "another_test.h"
 
-    # define ADDR_SKELETON_INPUTS 0
-    # define ADDR_COMPUTATION_ENABLE 100
+    #include <stdint.h>
+    #include <stdbool.h>
 
-    static void model_compute(bool enable);
+    #define ADDR_SKELETON_INPUTS 0
+    #define ADDR_COMPUTATION_ENABLE 100
+
+    static void modelCompute(bool enable);
     static uint8_t get_id(void);
 
     static uint64_t accelerator_id = 47;
@@ -131,7 +135,7 @@ def test_can_generate_deployable_stub_code() -> None:
     {
        middlewareInit();
        middlewareConfigureFpga(accelerator_addr);
-       sleep_ms(200);
+       sleep_for_ms(200);
        bool is_deployed_successfully = (get_id() == accelerator_id);
        middlewareDeinit();
        return is_deployed_successfully;
@@ -141,11 +145,11 @@ def test_can_generate_deployable_stub_code() -> None:
     {
        middlewareInit();
        middlewareUserlogicEnable();
-       model_compute(true);
+       modelCompute(true);
     
        while( middlewareUserlogicGetBusyStatus() );
     
-       model_compute(false);
+       modelCompute(false);
        middlewareUserlogicDisable();
        middlewareDeinit();
     }
@@ -158,19 +162,19 @@ def test_can_generate_deployable_stub_code() -> None:
        middlewareUserlogicEnable();
        middlewareWriteBlocking(ADDR_SKELETON_INPUTS+0, (uint8_t*)(inputs), 6);
        middlewareWriteBlocking(ADDR_SKELETON_INPUTS+6, (uint8_t*)(&more_inputs), 1);
-       model_compute(true);
+       modelCompute(true);
        
        while( middlewareUserlogicGetBusyStatus() );
 
        middlewareReadBlocking(1, (uint8_t *)(&_result), 1);
        middlewareReadBlocking(1, (uint8_t *)(&_result), 1);
-       model_compute(false);
+       modelCompute(false);
        middlewareUserlogicDisable();
        middlewareDeinit();
        return _result;
     }
     
-    static void model_compute(bool enable)
+    static void modelCompute(bool enable)
     {
        uint8_t cmd = (enable ? 1 : 0);
        middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);

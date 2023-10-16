@@ -125,7 +125,7 @@ class SyncFunction(Function):
 
     @staticmethod
     def _start_computation() -> str:
-        return _formatted_body_line('model_compute(true)')
+        return _formatted_body_line('modelCompute(true)')
 
     @staticmethod
     def _pass_parameter(target_addr: int, name: str, length: int) -> str:
@@ -161,7 +161,7 @@ class SyncFunction(Function):
 
     @staticmethod
     def _stop_fpga() -> str:
-        return f'   model_compute(false);\n' \
+        return f'   modelCompute(false);\n' \
                f'   middlewareUserlogicDisable();\n' \
                f'   middlewareDeinit();\n'
 
@@ -176,7 +176,7 @@ class DeployFunction(Function):
     def _body_as_c(self) -> str:
         return f'   middlewareInit();\n' \
                f'   middlewareConfigureFpga({self.address_var_name});\n' \
-               f'   sleep_ms(200);\n' \
+               f'   sleep_for_ms(200);\n' \
                f'   bool is_deployed_successfully = (get_id() == accelerator_id);\n' \
                f'   middlewareDeinit();\n' \
                f'   return is_deployed_successfully;\n'
@@ -186,7 +186,7 @@ class ModelComputeFunction(Function):
 
     def __init__(self) -> None:
         arg = Variable(Variable.Type.BOOL, 'enable', scope=Variable.Scope.LOCAL)
-        super().__init__('model_compute', Variable.Type.VOID, [arg], is_private=True)
+        super().__init__('modelCompute', Variable.Type.VOID, [arg], is_private=True)
 
     def _body_as_c(self) -> str:
         return self._shorter_body_as_c()

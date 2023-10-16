@@ -53,17 +53,19 @@ class Stub:
         path = self._relative_path_to_middleware_header
         if len(path) > 0 and path[-1] != '/':
             path += '/'
-        return f'# include <stdint.h>\n' \
-               f'# include <stdbool.h>\n' \
-               f'# include "{path}middleware.h"\n'\
-               f'# include "{self._name.lower()}.h"\n\n'
+        return f'#include "{path}middleware.h"\n' \
+               f'#include "Sleep.h"\n' \
+               f'#include "{self._name.lower()}.h"\n\n' \
+               f'#include <stdint.h>\n' \
+               f'#include <stdbool.h>\n\n' \
+
 
     def _generate_defines(self) -> str:
         path = self._relative_path_to_middleware_header
         if len(path) > 0 and path[-1] != '/':
             path += '/'
-        return f'# define ADDR_SKELETON_INPUTS 0\n' \
-               f'# define ADDR_COMPUTATION_ENABLE 100\n\n'
+        return f'#define ADDR_SKELETON_INPUTS 0\n' \
+               f'#define ADDR_COMPUTATION_ENABLE 100\n\n'
 
     def _generate_helper_function_prototypes(self) -> str:
         result = ''
@@ -98,16 +100,16 @@ class Stub:
         return result
 
     def as_c_header(self) -> str:
-        return f'# ifndef {self._name.upper()}_STUB_H\n' \
-               f'# define {self._name.upper()}_STUB_H\n' \
+        return f'#ifndef {self._name.upper()}_STUB_H\n' \
+               f'#define {self._name.upper()}_STUB_H\n' \
                f'\n' \
-               f'# include <stdbool.h>\n' \
-               f'# include <stdint.h>\n' \
+               f'#include <stdbool.h>\n' \
+               f'#include <stdint.h>\n' \
                f'\n' \
                f'{self._generate_system_function_prototypes()}' \
                f'{self._generate_stub_function_prototypes()}' \
                f'\n' \
-               f'# endif\n'
+               f'#endif\n'
 
     def _generate_system_function_prototypes(self) -> str:
         result: str = ''

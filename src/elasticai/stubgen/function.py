@@ -90,11 +90,12 @@ class Function:
 class SyncFunction(Function):
 
     def _body_as_c(self) -> str:
+        target_address = 0
         return self._define_local_vars() + \
             self._enable_fpga() + \
             self._run_accelerator() + \
             self._block_until_ready() + \
-            self._retrieve_result() + \
+            self._retrieve_result(target_address) + \
             self._stop_fpga() + \
             self._return_result()
 
@@ -145,11 +146,14 @@ class SyncFunction(Function):
     def _is_returning_result(self) -> bool:
         return self._result_var.type.get_length_in_byte() > 0
 
-    def _retrieve_result(self) -> str:
+    def _retrieve_result(self, target_addr: int) -> str:
         if self._is_returning_result():
             res = self._result_var.identifier
             length = self._result_var.type.get_length_in_byte()
-            return _formatted_body_line(f'middlewareReadBlocking(1, (uint8_t *)(&{res}), {length})') + _formatted_body_line(f'middlewareReadBlocking(1, (uint8_t *)(&{res}), {length})')
+            return _formatted_body_line(f'middlewareReadBlocking('
+                                        f'ADDR_SKELETON_INPUTS+{target_addr}, (uint8_t *)(&{res}), {length})') + \
+                   _formatted_body_line(f'middlewareReadBlocking('
+                                        f'ADDR_SKELETON_INPUTS+{target_addr}, (uint8_t *)(&{res}), {length})')
         else:
             return ''
 

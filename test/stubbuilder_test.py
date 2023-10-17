@@ -166,8 +166,8 @@ def test_can_generate_deployable_stub_code() -> None:
        
        while( middlewareUserlogicGetBusyStatus() );
 
-       middlewareReadBlocking(1, (uint8_t *)(&_result), 1);
-       middlewareReadBlocking(1, (uint8_t *)(&_result), 1);
+       middlewareReadBlocking(ADDR_SKELETON_INPUTS+0, (uint8_t *)(&_result), 1);
+       middlewareReadBlocking(ADDR_SKELETON_INPUTS+0, (uint8_t *)(&_result), 1);
        modelCompute(false);
        middlewareUserlogicDisable();
        middlewareDeinit();

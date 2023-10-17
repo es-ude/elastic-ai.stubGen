@@ -83,7 +83,6 @@ def test_basic_stub_code_can_be_generated_from_string() -> None:
        modelCompute(true);
        
        while( middlewareUserlogicGetBusyStatus() );
-          
        modelCompute(false);
        middlewareUserlogicDisable();
        middlewareDeinit();
@@ -148,7 +147,6 @@ def test_can_generate_deployable_stub_code() -> None:
        modelCompute(true);
     
        while( middlewareUserlogicGetBusyStatus() );
-    
        modelCompute(false);
        middlewareUserlogicDisable();
        middlewareDeinit();
@@ -165,7 +163,7 @@ def test_can_generate_deployable_stub_code() -> None:
        modelCompute(true);
        
        while( middlewareUserlogicGetBusyStatus() );
-       
+       modelCompute(false);
        for(int i = 0; i < 4; i++){
           middlewareReadBlocking(ADDR_SKELETON_INPUTS+0+i, (uint8_t *)(&_result)+i, 1);
           middlewareReadBlocking(ADDR_SKELETON_INPUTS+0+i, (uint8_t *)(&_result)+i, 1); 

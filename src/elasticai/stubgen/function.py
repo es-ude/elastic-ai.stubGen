@@ -141,7 +141,7 @@ class SyncFunction(Function):
 
     @staticmethod
     def _block_until_ready() -> str:
-        return _formatted_body_line(f'while( middlewareUserlogicGetBusyStatus() )')+'\n'
+        return _formatted_body_line(f'while( middlewareUserlogicGetBusyStatus() )')
 
     def _is_returning_result(self) -> bool:
         return self._result_var.type.get_length_in_byte() > 0
@@ -150,7 +150,8 @@ class SyncFunction(Function):
         if self._is_returning_result():
             res = self._result_var.identifier
             length = self._result_var.type.get_length_in_byte()
-            return f'for(int i = 0; i < 4; i++)''{\n' + \
+            return f'   modelCompute(false);\n' \
+                    f'for(int i = 0; i < 4; i++)''{\n' + \
                     _formatted_body_line(f'middlewareReadBlocking('
                                         f'ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)(&{res})+i, 1)') + \
                     _formatted_body_line(f'middlewareReadBlocking('
@@ -166,9 +167,9 @@ class SyncFunction(Function):
 
     @staticmethod
     def _stop_fpga() -> str:
-        return f'   modelCompute(false);\n' \
-               f'   middlewareUserlogicDisable();\n' \
-               f'   middlewareDeinit();\n'
+        return  f'   modelCompute(false);\n' \
+                f'   middlewareUserlogicDisable();\n' \
+                f'   middlewareDeinit();\n'
 
 
 class DeployFunction(Function):

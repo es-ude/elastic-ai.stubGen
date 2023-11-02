@@ -13,7 +13,7 @@ def test_generating_signature_for_sync_works():
     assert builder.generate().as_c_prototype() == expected
 
 
-def test_generating_syn_does_not_thriw_exception():
+def test_generating_syn_does_not_throw_exception():
     builder = FunctionBuilder()
     builder.generate()
 

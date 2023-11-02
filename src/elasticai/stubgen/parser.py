@@ -17,7 +17,7 @@ class Parser:
 
     def add_production_rules(self) -> None:
 
-        @self.pg.production('stub : STUB STRING attr function')
+        @self.pg.production('stub : STUB STRING metadata function')
         @self.pg.production('stub : STUB STRING function')
         def stub(p):
             name: str = p[1].value
@@ -33,21 +33,21 @@ class Parser:
             address = int(p[0].value)
             self.builder.set_accelerator_address(address)
 
-        @self.pg.production('attr : attr2')
-        @self.pg.production('attr : attr attr2')
+        @self.pg.production('metadata : metadata2')
+        @self.pg.production('metadata : metadata metadata2')
         def attributes(p):
             pass
 
-        @self.pg.production('attr2 : PATH PATH_STRING')
+        @self.pg.production('metadata2 : PATH PATH_STRING')
         def path_attr(p):
             path = p[1].value
             self.builder.set_middleware_path(path)
 
-        @self.pg.production('attr2 : ADDRESS address')
+        @self.pg.production('metadata2 : ADDRESS address')
         def address_attr(p):
             pass
 
-        @self.pg.production('attr2 : DEPLOY id address')
+        @self.pg.production('metadata2 : DEPLOY id address')
         def switch_attr(p):
             pass
 

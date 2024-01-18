@@ -1,10 +1,10 @@
-# ifndef TRAFFIC_SPEED_STUB_H
-# define TRAFFIC_SPEED_STUB_H
+#ifndef TRAFFIC_SPEED_STUB_H
+#define TRAFFIC_SPEED_STUB_H
 
-# include <stdbool.h>
-# include <stdint.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 bool traffic_speed_deploy(void);
 int8_t traffic_speed_predict(int8_t *inputs, bool more_inputs);
 
-# endif
+#endif

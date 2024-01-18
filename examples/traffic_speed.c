@@ -3,15 +3,17 @@
  * Do not change it manually. 
  */
 
-# include <stdint.h>
-# include <stdbool.h>
-# include "../../../src/middleware/include/middleware.h"
-# include "traffic_speed.h"
+#include "../middleware/middleware.h"
+#include "Sleep.h"
+#include "traffic_speed.h"
 
-# define ADDR_SKELETON_INPUTS 0
-# define ADDR_COMPUTATION_ENABLE 100
+#include <stdint.h>
+#include <stdbool.h>
 
-static void model_compute(bool enable);
+#define ADDR_SKELETON_INPUTS 0
+#define ADDR_COMPUTATION_ENABLE 100
+
+static void modelCompute(bool enable);
 static uint8_t get_id(void);
 
 static uint64_t accelerator_id = 47;
@@ -21,7 +23,7 @@ bool traffic_speed_deploy(void)
 {
    middlewareInit();
    middlewareConfigureFpga(accelerator_addr);
-   sleep_ms(200);
+   sleep_for_ms(200);
    bool is_deployed_successfully = (get_id() == accelerator_id);
    middlewareDeinit();
    return is_deployed_successfully;
@@ -35,19 +37,21 @@ int8_t traffic_speed_predict(int8_t *inputs, bool more_inputs)
    middlewareUserlogicEnable();
    middlewareWriteBlocking(ADDR_SKELETON_INPUTS+0, (uint8_t*)(inputs), 6);
    middlewareWriteBlocking(ADDR_SKELETON_INPUTS+6, (uint8_t*)(&more_inputs), 1);
-   model_compute(true);
+   modelCompute(true);
 
    while( middlewareUserlogicGetBusyStatus() );
-
-   middlewareReadBlocking(1, (uint8_t *)(&_result), 1);
-   middlewareReadBlocking(1, (uint8_t *)(&_result), 1);
-   model_compute(false);
+   modelCompute(false);
+   for(int i = 0; i < 1; i++){
+     middlewareReadBlocking(ADDR_SKELETON_INPUTS+0+i, (uint8_t *)(&_result)+i, 1);
+     middlewareReadBlocking(ADDR_SKELETON_INPUTS+0+i, (uint8_t *)(&_result)+i, 1);
+   }
+   modelCompute(false);
    middlewareUserlogicDisable();
    middlewareDeinit();
    return _result;
 }
 
-static void model_compute(bool enable)
+static void modelCompute(bool enable)
 {
    uint8_t cmd = (enable ? 1 : 0);
    middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, &cmd, 1);

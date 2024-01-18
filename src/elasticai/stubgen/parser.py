@@ -88,7 +88,11 @@ class Parser:
         def parameter(p):
             name: str = p[1].value
             p_type: str = p[0].value
-            self.builder.add_function_input_parameter(name, p_type, 1)
+            
+            if name == "outputs":
+                self.builder.add_function_output_parameter(name, p_type, 1)
+            else:
+                self.builder.add_function_input_parameter(name, p_type, 1)
 
         @self.pg.production('parameter2 : BOOL OPEN_SQUARE_BRACKET NUMBER CLOSE_SQUARE_BRACKET STRING')
         @self.pg.production('parameter2 : INT8 OPEN_SQUARE_BRACKET NUMBER CLOSE_SQUARE_BRACKET STRING')
@@ -99,7 +103,11 @@ class Parser:
             p_type = p[0].value
             length = int(p[2].value)
             name = p[4].value
-            self.builder.add_function_input_parameter(name, p_type, length)
+
+            if name == "outputs":
+                self.builder.add_function_output_parameter(name, p_type, length)
+            else:
+                self.builder.add_function_input_parameter(name, p_type, length)
 
         @self.pg.error
         def error_handle(token):

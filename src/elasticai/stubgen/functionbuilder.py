@@ -43,10 +43,15 @@ class FunctionBuilder:
         #     parameter.set_as_array(param_elements)
         self.parameters.append(parameter)
 
+    def add_output_parameter(self, param_type: Variable.Type, param_name: str, param_elements: int = 1) -> None:
+        parameter = Variable(param_type, param_name, param_elements, Variable.Scope.OUTPUT)
+        self.parameters.append(parameter)
+
     def generate(self) -> Function:
         name: str = self._generate_prefixed_name()
         if self.pattern == FunctionBuilder.CallPattern.SYNC:
             return SyncFunction(name, self.returnType, self.parameters)
+        raise ValueError(f"Call pattern '{self.pattern}' is currently not supported.")
 
     def _generate_prefixed_name(self) -> str:
         return f'{self.prefix}_{self.name}'

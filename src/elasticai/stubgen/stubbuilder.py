@@ -36,6 +36,9 @@ class StubBuilder:
     def add_function_input_parameter(self, param_name: str, param_type: str, length: int) -> None:
         self.functions[-1].add_input_parameter(Variable.Type(param_type), param_name, length)
 
+    def add_function_output_parameter(self, param_name: str, param_type: str, length: int) -> None:
+        self.functions[-1].add_output_parameter(Variable.Type(param_type), param_name, length)
+
     def _has_deploy_function(self) -> bool:
         return self._accelerator_address is not None and self._accelerator_id is not None
 

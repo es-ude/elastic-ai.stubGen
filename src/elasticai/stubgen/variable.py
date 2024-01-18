@@ -50,7 +50,7 @@ class Variable:
                 self.var_type = 'uint64_t'
                 self.length = 8
             else:
-                raise "UNKNOWN TYPE"
+                raise ValueError("UNKNOWN TYPE")
 
         def as_c_code(self):
             return self.var_type

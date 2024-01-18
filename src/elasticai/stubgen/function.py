@@ -44,7 +44,7 @@ class Function:
             arguments = []
         self._identifier = identifier
         self._result_var = Variable(return_type, '_result', scope=Variable.Scope.RETURN)
-        self._input_variables: List[Variable] = arguments
+        self._parameters: List[Variable] = arguments
         self.is_private = is_private
 
     def as_c_code(self) -> str:
@@ -57,7 +57,7 @@ class Function:
 
     def as_c_code_(self) -> None:
         writer = WriterC()
-        writer.signature(self.is_private, self._identifier, self._result_var, self._input_variables)
+        writer.signature(self.is_private, self._identifier, self._result_var, self._parameters)
         # self._write_body(writer)
         writer.open_block()
         writer.close_block()
@@ -74,11 +74,11 @@ class Function:
         return result
 
     def _parameter_list_as_c(self) -> str:
-        if not self._input_variables:
+        if not self._parameters:
             return Variable.Type.VOID.as_c_code()
         else:
             result: str = ''
-            for param in self._input_variables:
+            for param in self._parameters:
                 result += param.as_parameter_in_signature() + ', '
             result = result[:-2]
             return result
@@ -117,7 +117,8 @@ class SyncFunction(Function):
     def _send_data_to_fpga(self) -> str:
         result = ''
         target_address = 0
-        for parameter in self._input_variables:
+        input_parameters = filter(lambda p: p.scope == Variable.Scope.INPUT, self._parameters)
+        for parameter in input_parameters:
             identifier = parameter.as_pass_by_reference()
             length = parameter.get_length_in_byte()
             result += f'{self._pass_parameter(target_address, f"{identifier}", length)}'
@@ -135,7 +136,7 @@ class SyncFunction(Function):
 
     def _get_input_length(self) -> int:
         input_length = 0
-        for param in self._input_variables:
+        for param in self._parameters:
             input_length += param.get_length_in_byte()
         return input_length
 
@@ -146,16 +147,41 @@ class SyncFunction(Function):
     def _is_returning_result(self) -> bool:
         return self._result_var.type.get_length_in_byte() > 0
 
+    def _has_output_variable(self) -> bool:
+        for parameter in self._parameters:
+            if parameter.scope == Variable.Scope.OUTPUT:
+                return True
+        return False
+    
+    def _get_output_variable(self) -> Variable:
+        for variable in self._parameters:
+            if variable.scope == Variable.Scope.OUTPUT:
+                return variable
+        raise ValueError("No output parameter declared.")
+
     def _retrieve_result(self, target_addr: int) -> str:
+        code_template = """   modelCompute(false);
+   for(int i = 0; i < {length}; i++){{
+       middlewareReadBlocking(ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)({result})+i, 1);
+       middlewareReadBlocking(ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)({result})+i, 1);
+   }}
+"""
+
         if self._is_returning_result():
-            res = self._result_var.identifier
-            length = self._result_var.type.get_length_in_byte()
-            return f'   modelCompute(false);\n' \
-                    f'   for(int i = 0; i < {length}; i++)''{\n' + \
-                    _formatted_body_line(f'  middlewareReadBlocking('
-                                        f'ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)(&{res})+i, 1)') + \
-                    _formatted_body_line(f'  middlewareReadBlocking('
-                                        f'ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)(&{res})+i, 1)') + '   }' + '\n'
+            return code_template.format(
+                # length=self._result_var.type.get_length_in_byte(),
+                length=self._result_var.elements,
+                target_addr=target_addr,
+                result=f"&{self._result_var.identifier}",
+            )
+        elif self._has_output_variable():
+            output_var = self._get_output_variable()
+            return code_template.format(
+                # length=output_var.type.get_length_in_byte(),
+                length=output_var.elements,
+                target_addr=target_addr,
+                result=output_var.identifier,
+            )
         else:
             return ''
 

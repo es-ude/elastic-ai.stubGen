@@ -152,7 +152,7 @@ class SyncFunction(Function):
             return f'   modelCompute(false);\n' + \
                     f'   for(int i = 0; i < {length}; i++)''{\n' + \
                     _formatted_body_line(f'  middlewareReadBlocking('
-                                        f'ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)(&{res})+i, 1)') + '\n'
+                                        f'ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)(&{res})+i, 1)') + '   }' + '\n'
         else:
             return ''
 

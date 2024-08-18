@@ -96,7 +96,7 @@ class SyncFunction(Function):
             self._run_accelerator() + \
             self._block_until_ready() + \
             self._retrieve_result(target_address) + \
-            self._stop_fpga() + \
+            # self._stop_fpga() + \  # add this will make wrong result from fpga
             self._return_result()
 
     def _define_local_vars(self):

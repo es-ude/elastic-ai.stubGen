@@ -149,12 +149,9 @@ class SyncFunction(Function):
         if self._is_returning_result():
             res = self._result_var.identifier
             length = self._result_var.type.get_length_in_byte()
-            return f'   modelCompute(false);\n' \
-                    f'   for(int i = 0; i < {length}; i++)''{\n' + \
+            return f'   modelCompute(false);\n' + \
                     _formatted_body_line(f'  middlewareReadBlocking('
-                                        f'ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)(&{res})+i, 1)') + \
-                    _formatted_body_line(f'  middlewareReadBlocking('
-                                        f'ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)(&{res})+i, 1)') + '   }' + '\n'
+                                        f'ADDR_SKELETON_INPUTS+{target_addr}+i, (uint8_t *)(&{res})+i, 1)') + '\n'
         else:
             return ''
 
